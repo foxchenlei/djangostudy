@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'l6w#uq2jt^by@jlc)4m_t3_ms!^5urx43qhh&ky2p5h4gg(gsi'
+SECRET_KEY = 'xxxxxxxxxxxxxxxxx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['101.254.242.12',]
+ALLOWED_HOSTS = ['172.16.105.12',]
 
 
 # Application definition
@@ -112,10 +112,10 @@ STATICFILES_DIRS = (
 
 # 邮件配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mail.emar.com'
+EMAIL_HOST = 'mail.qq.com'
 EMAIL_PORT = 25
-EMAIL_HOST_USER = 'chenlei@emar.com'
-EMAIL_HOST_PASSWORD = 'P4dDZJ9j66EoS'
+EMAIL_HOST_USER = 'foxchan@qq.com'
+EMAIL_HOST_PASSWORD = 'password'
 
 #注册有效期天数
 CONFIRM_DAYS = 7
