@@ -31,6 +31,8 @@ urlpatterns = [
     url(r'^captcha', include('captcha.urls')),
     url(r'^confirm/$', v.user_confirm),
 
+    url(r'^assets/', include('cmdb.urls')),
+
 
     url(r'^simplemap/', v.simplemap),
     url(r'^paramap/(?P<year>[0-9]{4})', v.paramap),
