@@ -69,8 +69,8 @@ def get_cpu_info():
 
     raw_data = {
         'cpu_model': "%s |grep 'model name' |head -1 " % base_cmd,
-        'cpu_count':  "%s |grep  'processor'|wc -l " % base_cmd,
-        'cpu_core_count': "%s |grep 'cpu cores' |awk -F: '{SUM +=$2} END {print SUM}'" % base_cmd,
+        'cpu_count':  "%s |grep 'physical id'|sort |uniq|wc -l " % base_cmd,
+        'cpu_core_count': "%s |grep 'processor'|wc -l" % base_cmd,
     }
 
     for key, cmd in raw_data.items():
@@ -219,7 +219,6 @@ def get_nic_info():
 def get_disk_info():
     """
     获取存储信息。
-    本脚本只针对ubuntu中使用sda，且只有一块硬盘的情况。
     具体查看硬盘信息的命令，请根据实际情况，实际调整。
     如果需要查看Raid信息，可以尝试MegaCli工具。
     :return:
@@ -231,21 +230,33 @@ def get_disk_info():
 #    model = data_list[0].split("=")[1]
 #    sn = data_list[2].split("=")[1].strip()
 
-    model = subprocess.Popen("smartctl -i /dev/sda|grep Vendor|awk '{print $2}'", stdout=subprocess.PIPE, shell=True) 
-    model = model.stdout.read().decode()
-    sn = subprocess.Popen("smartctl -i /dev/sda|grep Serial|awk '{print $3}'", stdout=subprocess.PIPE, shell=True)
-    sn = sn.stdout.read().decode()
-
-    size_data = subprocess.Popen("sudo fdisk -l /dev/sda | grep Disk|head -1", stdout=subprocess.PIPE, shell=True)
-    size_data = size_data.stdout.read().decode()
-    size = size_data.split(":")[1].strip().split(" ")[0]
-
+    cmd = "fdisk -l|grep Disk|grep sd|awk -F ':' '{print$1}'|awk '{print $2}'"
+    disk = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    disk = disk.stdout.read().decode().split()
     result = {'physical_disk_driver': []}
-    disk_dict = dict()
-    disk_dict["model"] = model
-    disk_dict["size"] = size
-    disk_dict["sn"] = sn
-    result['physical_disk_driver'].append(disk_dict)
+
+    for i in disk:
+       cmd = "smartctl -i %s |grep Vendor|awk '{print $2}'"  %i
+       model = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+       model = model.stdout.read().decode().replace('\n','')
+
+       cmd = "smartctl -i %s|grep Serial|awk '{print $3}'" %i
+       sn = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True) 
+       sn = sn.stdout.read().decode().replace('\n','')
+   
+       cmd = "sudo fdisk -l %s | grep Disk|head -1" %i
+       size_data = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+       size_data = size_data.stdout.read().decode()
+       size = size_data.split(":")[1].strip().split(" ")[0]  
+
+
+       disk_dict = dict()
+       disk_dict["model"] = model
+       disk_dict["size"] = size
+       disk_dict["sn"] = sn
+       disk_dict["capacity"] = size
+       disk_dict["slot"] = i
+       result['physical_disk_driver'].append(disk_dict)
 
     return result
 
